@@ -12,7 +12,8 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public Rigidbody2D Rb2d;
 
-    private CircleCollider2D _circleCollider2D;
+    private SpriteRenderer _playerSprite;
+    private BoxCollider2D _boxCollider2D;
     [SerializeField] private float turnTime = .4f;
     [SerializeField] private LayerMask groundLayer;
 
@@ -24,7 +25,8 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out Rb2d);
         TryGetComponent(out _playerMovement);
         TryGetComponent(out _playerAnimation);
-        TryGetComponent(out _circleCollider2D);
+        TryGetComponent(out _boxCollider2D);
+        transform.GetChild(0).TryGetComponent(out _playerSprite);
 
         _playerMovement.controller = this;
         _playerAnimation.controller = this;
@@ -47,8 +49,8 @@ public class PlayerController : MonoBehaviour
 
     private void CheckForGround()
     {
-        Vector2 origin = new Vector2(transform.position.x, transform.position.y - _circleCollider2D.radius - .1f);
-        Vector2 size = new Vector2(_circleCollider2D.radius, .1f);
+        Vector2 origin = new Vector2(transform.position.x, transform.position.y - _boxCollider2D.bounds.extents.y + _boxCollider2D.edgeRadius - .1f);
+        Vector2 size = new Vector2(_boxCollider2D.bounds.extents.y + _boxCollider2D.edgeRadius, .1f);
 
         OnGround = DrawingRaycast2D.BoxCast(origin, size, groundLayer, Color.green, Color.red);
     }
@@ -94,7 +96,7 @@ public class PlayerController : MonoBehaviour
 
         collision.collider.TryGetComponent(out Rigidbody2D boxRig);
 
-        if (collision.transform.position.y > transform.position.y + _circleCollider2D.radius && !boxRig.isKinematic)
+        if (collision.transform.position.y > transform.position.y + _boxCollider2D.bounds.extents.y + _boxCollider2D.edgeRadius && !boxRig.isKinematic)
         {
             _crushed = true;
             _playerMovement.enabled = false;
@@ -105,12 +107,12 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator StartCrush(Transform objectCrushingPlayer, Vector2 collisionPoint)
     {
-        var radius = _circleCollider2D.radius;
+        var radius = _boxCollider2D.bounds.extents.y + _boxCollider2D.edgeRadius;
         var boxDistanceToGround = collisionPoint.y - transform.position.y + radius;
         var initialBoxYPosition = objectCrushingPlayer.position.y;
         var initialPlayerYPosition = transform.position.y;
 
-        _circleCollider2D.enabled = false;
+        _boxCollider2D.enabled = false;
         float minimalDifference = .001f;
         float lastCrushingPercentage = float.MaxValue;
 
@@ -134,7 +136,10 @@ public class PlayerController : MonoBehaviour
         }
 
         _playerAnimation.StartDeathEffect();
-        gameObject.SetActive(false);
+        _playerSprite.enabled = false;
+
+        yield return new WaitForSeconds(.5f);
+        GameController.Instance.StartSceneTransition(true);
     }
 
     public void DamagePlayer()
@@ -152,6 +157,9 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(.7f);
 
         _playerAnimation.StartDeathEffect();
-        gameObject.SetActive(false);
+        _playerSprite.enabled = false;
+
+        yield return new WaitForSeconds(.5f);
+        GameController.Instance.StartSceneTransition(true);
     }
 }

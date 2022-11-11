@@ -11,6 +11,7 @@ public class StageCompletionTrigger : MonoBehaviour
             return;
         }
 
-        GameController.Instance.EndStage();
+        Time.timeScale = 0;
+        GameController.Instance.StartSceneTransition();
     }
 }

@@ -14,22 +14,27 @@ public class GameController : MonoBehaviour
 
     [SerializeField] private float turnTime = .75f;
 
+    private GameInterface _interface;
     private PlayerController _player;
     private Door _stageDoor;
     private bool _keyMoving;
 
     private void Awake()
     {
+        /*
         if (Instance != null)
         {
             Destroy(gameObject);
             return;
         }
+        DontDestroyOnLoad(gameObject);
+        */
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        Time.timeScale = 1;
         TurnManager = FindObjectOfType<ScenarioTurnManager>();
         _player = FindObjectOfType<PlayerController>();
+        _interface = FindObjectOfType<GameInterface>();
         _stageDoor = FindObjectOfType<Door>();
     }
 
@@ -93,16 +98,21 @@ public class GameController : MonoBehaviour
             });
     }
 
-    public void EndStage()
+    public void StartSceneTransition(bool sameLevel = false)
     {
-        Debug.Log("Stage Complete!");
-        Time.timeScale = 0;
+        _interface.AnimateTransition(false, sameLevel);
+    }
+
+    public void EndStage(int sceneJump)
+    {
+        SceneManager.LoadScene((SceneManager.GetActiveScene().buildIndex + sceneJump) % SceneManager.sceneCountInBuildSettings);
     }
 
     private void OnSceneLoad(Scene arg0, LoadSceneMode arg1)
     {
         TurnManager = FindObjectOfType<ScenarioTurnManager>();
         _player = FindObjectOfType<PlayerController>();
+        _interface = FindObjectOfType<GameInterface>();
         _stageDoor = FindObjectOfType<Door>();
     }
 }
