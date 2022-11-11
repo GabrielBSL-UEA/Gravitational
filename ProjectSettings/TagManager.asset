@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Box
   layers:
   - Default
   - TransparentFX
@@ -43,4 +44,7 @@ TagManager:
     locked: 0
   - name: Composition
     uniqueID: 2802883115
+    locked: 0
+  - name: Effects
+    uniqueID: 3045427889
     locked: 0

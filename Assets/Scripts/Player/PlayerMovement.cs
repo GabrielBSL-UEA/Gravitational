@@ -40,7 +40,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyHorizontalVelocity()
     {
-        float targetSpeed = horizontalDirection * maxVelocity;
+        float airboundMultiplier = controller.OnGround ? 1 : .3f;
+
+        float targetSpeed = horizontalDirection * airboundMultiplier * maxVelocity;
         float speedDifference = targetSpeed - controller.Rb2d.velocity.x;
         float accelerationRate = Mathf.Sign(controller.Rb2d.velocity.x) == MathF.Sign(targetSpeed) && targetSpeed != 0
             ? acceleration
